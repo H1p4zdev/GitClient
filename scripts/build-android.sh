@@ -33,7 +33,7 @@ fi
 
 # 6. Build Android APK
 echo "🤖 Building Android APK..."
-cd android
-./gradlew assembleDebug
+# Using java directly with the wrapper JAR to avoid script-related classpath issues
+java -cp android/gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain -p android assembleDebug
 
 echo "🎉 Build completed successfully!"
