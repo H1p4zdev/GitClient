@@ -33,7 +33,24 @@ fi
 
 # 6. Build Android APK
 echo "🤖 Building Android APK..."
+
+# Check if the wrapper JAR is valid (contains the main class)
+if ! grep -q "GradleWrapperMain" android/gradle/wrapper/gradle-wrapper.jar 2>/dev/null; then
+  echo "⚠️ Gradle wrapper JAR appears corrupted or missing classes. Attempting to regenerate..."
+  # Removing and re-adding the android platform is the most reliable way to restore the wrapper
+  rm -rf android
+  npx cap add android
+  npx cap sync android
+  chmod +x android/gradlew
+fi
+
 # Using java directly with the wrapper JAR to avoid script-related classpath issues
-java -cp android/gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain -p android assembleDebug
+JAVACMD="java"
+if [ -n "$JAVA_HOME" ]; then
+  JAVACMD="$JAVA_HOME/bin/java"
+fi
+
+echo "☕ Using Java: $JAVACMD"
+$JAVACMD -cp android/gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain -p android assembleDebug
 
 echo "🎉 Build completed successfully!"
